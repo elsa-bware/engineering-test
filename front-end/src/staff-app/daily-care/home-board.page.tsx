@@ -19,6 +19,7 @@ export const HomeBoardPage: React.FC = () => {
   const [selectedOption, setSelectedOption] = useState("First Name")
   const [searchTerm, setSearchTerm] = useState("")
   const [getStudents, data, loadState, error] = useApi<{ students: Person[] }>({ url: "get-homeboard-students" })
+  const [studentsInState, setStudentsInState] = useState(data?.students.slice())
 
   const typeAll: ItemType = "all"
   const typePresent: ItemType = "present"
@@ -31,9 +32,15 @@ export const HomeBoardPage: React.FC = () => {
     { type: typeAbsent, count: 0 },
   ])
 
+  const [filterRollState, setFilterRollState] = useState("")
+
   useEffect(() => {
     void getStudents()
   }, [getStudents])
+
+  useEffect(() => {
+    setStudentsInState(data?.students.slice())
+  }, [data])
 
   const onStateChangeRollType = (nextType: RolllStateType, currentType: RolllStateType) => {
     if (currentType === "unmark") {
@@ -68,6 +75,25 @@ export const HomeBoardPage: React.FC = () => {
     }
   }
 
+  const handleFilterRollState = (rollType: ItemType) => {
+    setFilterRollState(rollType)
+  }
+
+  const setStudentRollState = (id: number, newState: RolllStateType) => {
+    let index = studentsInState?.findIndex((s) => s.id === id)
+    console.log("index is " + index)
+    if (index !== undefined) {
+      let newStudents = studentsInState?.slice()
+      console.log("studentInState: " + studentsInState)
+      console.log("newStudenta: " + newStudents)
+      if (newStudents) {
+        console.log("setting students state: " + newState + ", id: " + id)
+        newStudents[index].roll_state = newState
+        setStudentsInState(newStudents)
+      }
+    }
+  }
+
   return (
     <>
       <S.PageContainer>
@@ -79,10 +105,11 @@ export const HomeBoardPage: React.FC = () => {
           </CenteredContainer>
         )}
 
-        {loadState === "loaded" && data?.students && (
+        {loadState === "loaded" && studentsInState && (
           <>
-            {data.students
+            {studentsInState
               .sort((a, b) => {
+                console.log("sorting")
                 let sortTargetA = a.first_name
                 let sortTargetB = b.first_name
                 if (selectedOption === "Last Name") {
@@ -105,8 +132,12 @@ export const HomeBoardPage: React.FC = () => {
               .filter((person) => {
                 return searchTerm === "" || person.first_name.toLowerCase().includes(searchTerm) || person.last_name.toLowerCase().includes(searchTerm)
               })
+              .filter((person) => {
+                console.log("persion statte: " + person.roll_state + ", filter state: " + filterRollState)
+                return filterRollState === "" || person.roll_state === filterRollState
+              })
               .map((s) => (
-                <StudentListTile key={s.id} isRollMode={isRollMode} student={s} onStateChange={onStateChangeRollType} />
+                <StudentListTile key={s.id} isRollMode={isRollMode} student={s} onStateChange={onStateChangeRollType} changeStudentRollState={setStudentRollState} />
               ))}
           </>
         )}
@@ -117,7 +148,7 @@ export const HomeBoardPage: React.FC = () => {
           </CenteredContainer>
         )}
       </S.PageContainer>
-      <ActiveRollOverlay isActive={isRollMode} onItemClick={onActiveRollAction} stateList={stateList} />
+      <ActiveRollOverlay isActive={isRollMode} onItemClick={onActiveRollAction} stateList={stateList} onFilterClick={handleFilterRollState} />
     </>
   )
 }

@@ -11,8 +11,9 @@ interface Props {
   isRollMode?: boolean
   student: Person
   onStateChange: (newState: RolllStateType, currentState: RolllStateType) => void
+  changeStudentRollState: (id: number, newState: RolllStateType) => void
 }
-export const StudentListTile: React.FC<Props> = ({ isRollMode, student, onStateChange }) => {
+export const StudentListTile: React.FC<Props> = ({ isRollMode, student, onStateChange, changeStudentRollState }) => {
   return (
     <S.Container>
       <S.Avatar url={Images.avatar}></S.Avatar>
@@ -21,7 +22,7 @@ export const StudentListTile: React.FC<Props> = ({ isRollMode, student, onStateC
       </S.Content>
       {isRollMode && (
         <S.Roll>
-          <RollStateSwitcher onStateChange={onStateChange} />
+          <RollStateSwitcher onStateChange={onStateChange} changeStudentRollState={changeStudentRollState} studentId={student.id} />
         </S.Roll>
       )}
     </S.Container>

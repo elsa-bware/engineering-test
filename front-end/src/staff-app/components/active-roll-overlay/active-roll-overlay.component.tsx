@@ -3,23 +3,26 @@ import styled from "styled-components"
 import Button from "@material-ui/core/Button"
 import { BorderRadius, Spacing } from "shared/styles/styles"
 import { RollStateList, StateList } from "staff-app/components/roll-state/roll-state-list.component"
+import { ItemType } from "staff-app/components/roll-state/roll-state-list.component"
+import { RolllStateType } from "shared/models/roll"
 
 export type ActiveRollAction = "filter" | "exit"
 interface Props {
   isActive: boolean
   onItemClick: (action: ActiveRollAction, value?: string) => void
   stateList: StateList[]
+  onFilterClick: (type: ItemType) => void
 }
 
 export const ActiveRollOverlay: React.FC<Props> = (props) => {
-  const { isActive, onItemClick, stateList } = props
+  const { isActive, onItemClick, stateList, onFilterClick } = props
 
   return (
     <S.Overlay isActive={isActive}>
       <S.Content>
         <div>Class Attendance</div>
         <div>
-          <RollStateList stateList={stateList} />
+          <RollStateList stateList={stateList} onItemClick={onFilterClick} />
           <div style={{ marginTop: Spacing.u6 }}>
             <Button color="inherit" onClick={() => onItemClick("exit")}>
               Exit
