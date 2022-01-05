@@ -10,6 +10,8 @@ import { useApi } from "shared/hooks/use-api"
 import { StudentListTile } from "staff-app/components/student-list-tile/student-list-tile.component"
 import { ActiveRollOverlay, ActiveRollAction } from "staff-app/components/active-roll-overlay/active-roll-overlay.component"
 import { ListItem } from "@material-ui/core"
+import { RolllStateType } from "shared/models/roll"
+import { ItemType } from "staff-app/components/roll-state/roll-state-list.component"
 
 export const HomeBoardPage: React.FC = () => {
   const [isRollMode, setIsRollMode] = useState(false)
@@ -18,9 +20,35 @@ export const HomeBoardPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("")
   const [getStudents, data, loadState, error] = useApi<{ students: Person[] }>({ url: "get-homeboard-students" })
 
+  const typeAll: ItemType = "all"
+  const typePresent: ItemType = "present"
+  const typeLate: ItemType = "late"
+  const typeAbsent: ItemType = "absent"
+  const [stateList, setStateList] = useState([
+    { type: typeAll, count: 0 },
+    { type: typePresent, count: 0 },
+    { type: typeLate, count: 0 },
+    { type: typeAbsent, count: 0 },
+  ])
+
   useEffect(() => {
     void getStudents()
   }, [getStudents])
+
+  const onStateChangeRollType = (nextType: RolllStateType, currentType: RolllStateType) => {
+    if (currentType === "unmark") {
+      setStateList([{ type: typeAll, count: stateList[0].count + 1 }, { type: typePresent, count: stateList[1].count + 1 }, stateList[2], stateList[3]])
+    }
+    if (currentType === "present") {
+      setStateList([stateList[0], { type: typePresent, count: stateList[1].count - 1 }, { type: typeLate, count: stateList[2].count + 1 }, stateList[3]])
+    }
+    if (currentType === "late") {
+      setStateList([stateList[0], stateList[1], { type: typeLate, count: stateList[2].count - 1 }, { type: typeAbsent, count: stateList[3].count + 1 }])
+    }
+    if (currentType === "absent") {
+      setStateList([stateList[0], { type: typePresent, count: stateList[1].count + 1 }, stateList[2], { type: typeAbsent, count: stateList[3].count - 1 }])
+    }
+  }
 
   const onToolbarAction = (action: ToolbarAction) => {
     if (action === "roll") {
@@ -78,7 +106,7 @@ export const HomeBoardPage: React.FC = () => {
                 return searchTerm === "" || person.first_name.toLowerCase().includes(searchTerm) || person.last_name.toLowerCase().includes(searchTerm)
               })
               .map((s) => (
-                <StudentListTile key={s.id} isRollMode={isRollMode} student={s} />
+                <StudentListTile key={s.id} isRollMode={isRollMode} student={s} onStateChange={onStateChangeRollType} />
               ))}
           </>
         )}
@@ -89,7 +117,7 @@ export const HomeBoardPage: React.FC = () => {
           </CenteredContainer>
         )}
       </S.PageContainer>
-      <ActiveRollOverlay isActive={isRollMode} onItemClick={onActiveRollAction} />
+      <ActiveRollOverlay isActive={isRollMode} onItemClick={onActiveRollAction} stateList={stateList} />
     </>
   )
 }

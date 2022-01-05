@@ -57,9 +57,9 @@ const S = {
   `,
 }
 
-interface StateList {
+export interface StateList {
   type: ItemType
   count: number
 }
 
-type ItemType = RolllStateType | "all"
+export type ItemType = RolllStateType | "all"
