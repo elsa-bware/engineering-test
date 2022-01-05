@@ -20,6 +20,7 @@ export const RollStateIcon: React.FC<Props> = (props) => {
 }
 
 function getBgColor(type: RolllStateType) {
+  console.log("======" + type)
   switch (type) {
     case "unmark":
       return "#fff"
@@ -30,7 +31,7 @@ function getBgColor(type: RolllStateType) {
     case "late":
       return "#f5a623"
     default:
-      return "#13943b"
+      return "#000000"
   }
 }
 

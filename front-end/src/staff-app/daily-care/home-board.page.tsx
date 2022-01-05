@@ -40,11 +40,12 @@ export const HomeBoardPage: React.FC = () => {
 
   useEffect(() => {
     setStudentsInState(data?.students.slice())
+    setStateList([{ type: typeAll, count: data?.students.length ? data?.students.length : 0 }, stateList[1], stateList[2], stateList[3]])
   }, [data])
 
   const onStateChangeRollType = (nextType: RolllStateType, currentType: RolllStateType) => {
     if (currentType === "unmark") {
-      setStateList([{ type: typeAll, count: stateList[0].count + 1 }, { type: typePresent, count: stateList[1].count + 1 }, stateList[2], stateList[3]])
+      setStateList([stateList[0], { type: typePresent, count: stateList[1].count + 1 }, stateList[2], stateList[3]])
     }
     if (currentType === "present") {
       setStateList([stateList[0], { type: typePresent, count: stateList[1].count - 1 }, { type: typeLate, count: stateList[2].count + 1 }, stateList[3]])
@@ -133,8 +134,8 @@ export const HomeBoardPage: React.FC = () => {
                 return searchTerm === "" || person.first_name.toLowerCase().includes(searchTerm) || person.last_name.toLowerCase().includes(searchTerm)
               })
               .filter((person) => {
-                console.log("persion statte: " + person.roll_state + ", filter state: " + filterRollState)
-                return filterRollState === "" || person.roll_state === filterRollState
+                console.log("persion state: " + person.roll_state + ", filter state: " + filterRollState)
+                return filterRollState === "" || filterRollState === "all" || person.roll_state === filterRollState
               })
               .map((s) => (
                 <StudentListTile key={s.id} isRollMode={isRollMode} student={s} onStateChange={onStateChangeRollType} changeStudentRollState={setStudentRollState} />
