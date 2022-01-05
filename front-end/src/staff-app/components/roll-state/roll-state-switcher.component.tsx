@@ -13,10 +13,10 @@ interface Props {
 export const RollStateSwitcher: React.FC<Props> = ({ initialState = "unmark", size = 40, onStateChange, changeStudentRollState, student }) => {
   const [rollState, setRollState] = useState(initialState)
 
-  // useEffect(() => {
-  //   console.log("!!!!!" + student.roll_state)
-  //   setRollState(student.roll_state)
-  // }, [student])
+  useEffect(() => {
+    console.log("!!!!!" + student.roll_state)
+    setRollState(student.roll_state)
+  }, [student])
 
   const nextState = () => {
     const states: RolllStateType[] = ["present", "late", "absent"]

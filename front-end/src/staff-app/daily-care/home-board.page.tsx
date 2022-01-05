@@ -12,13 +12,14 @@ import { ActiveRollOverlay, ActiveRollAction } from "staff-app/components/active
 import { ListItem } from "@material-ui/core"
 import { RolllStateType } from "shared/models/roll"
 import { ItemType } from "staff-app/components/roll-state/roll-state-list.component"
+import { rollInitialType } from "shared/helpers/data-generation"
 
 export const HomeBoardPage: React.FC = () => {
   const [isRollMode, setIsRollMode] = useState(false)
   const [isAscending, setIsAscending] = useState(true)
   const [selectedOption, setSelectedOption] = useState("First Name")
   const [searchTerm, setSearchTerm] = useState("")
-  const [getStudents, data, loadState, error] = useApi<{ students: Person[] }>({ url: "get-homeboard-students" })
+  const [getStudents, data, loadState] = useApi<{ students: Person[] }>({ url: "get-homeboard-students" })
   const [studentsInState, setStudentsInState] = useState(data?.students.slice())
 
   const typeAll: ItemType = "all"
@@ -39,7 +40,13 @@ export const HomeBoardPage: React.FC = () => {
   }, [getStudents])
 
   useEffect(() => {
-    setStudentsInState(data?.students.slice())
+    setStudentsInState(
+      data?.students.map((s) => {
+        let a = s
+        a.roll_state = rollInitialType
+        return a
+      })
+    )
     setStateList([{ type: typeAll, count: data?.students.length ? data?.students.length : 0 }, stateList[1], stateList[2], stateList[3]])
   }, [data])
 
@@ -131,10 +138,10 @@ export const HomeBoardPage: React.FC = () => {
                 }
               })
               .filter((person) => {
-                return searchTerm === "" || person.first_name.toLowerCase().includes(searchTerm) || person.last_name.toLowerCase().includes(searchTerm)
+                return searchTerm === "" || person.first_name.toLowerCase().includes(searchTerm.toLowerCase()) || person.last_name.toLowerCase().includes(searchTerm.toLowerCase())
               })
               .filter((person) => {
-                console.log("persion state: " + person.roll_state + ", filter state: " + filterRollState)
+                console.log("person state: " + person.roll_state + ", filter state: " + filterRollState)
                 return filterRollState === "" || filterRollState === "all" || person.roll_state === filterRollState
               })
               .map((s) => (

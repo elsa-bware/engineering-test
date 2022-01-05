@@ -2,7 +2,7 @@ import { getRandomInt, generateRange } from "shared/helpers/math-utils"
 import { RolllStateType } from "shared/models/roll"
 
 const nameTokens = ["Alan", "John", "Brandon", "Key", "Branda", "Morris", "Carlos", "Lee"]
-const rollInitialType: RolllStateType = "unmark"
+export const rollInitialType: RolllStateType = "unmark"
 
 export function generateStudent(id: number) {
   return {
