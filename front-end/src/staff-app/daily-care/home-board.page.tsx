@@ -17,10 +17,10 @@ import { rollInitialType } from "shared/helpers/data-generation"
 export const HomeBoardPage: React.FC = () => {
   const [isRollMode, setIsRollMode] = useState(false)
   const [isAscending, setIsAscending] = useState(true)
-  const [selectedOption, setSelectedOption] = useState("First Name")
+  const [selectedNameSortOption, setSelectedNameSortOption] = useState("First Name")
   const [searchTerm, setSearchTerm] = useState("")
   const [getStudents, data, loadState] = useApi<{ students: Person[] }>({ url: "get-homeboard-students" })
-  const [studentsInState, setStudentsInState] = useState(data?.students.slice())
+  const [studentsArrayInState, setStudentsArrayInState] = useState(data?.students.slice())
 
   const typeAll: ItemType = "all"
   const typePresent: ItemType = "present"
@@ -40,7 +40,7 @@ export const HomeBoardPage: React.FC = () => {
   }, [getStudents])
 
   useEffect(() => {
-    setStudentsInState(
+    setStudentsArrayInState(
       data?.students.map((s) => {
         let a = s
         a.roll_state = rollInitialType
@@ -71,9 +71,9 @@ export const HomeBoardPage: React.FC = () => {
     } else if (action === "sortByAscDes") {
       setIsAscending(!isAscending)
     } else if (action === "sortByFName") {
-      setSelectedOption("First Name")
+      setSelectedNameSortOption("First Name")
     } else if (action === "sortByLName") {
-      setSelectedOption("Last Name")
+      setSelectedNameSortOption("Last Name")
     }
   }
 
@@ -88,16 +88,12 @@ export const HomeBoardPage: React.FC = () => {
   }
 
   const setStudentRollState = (id: number, newState: RolllStateType) => {
-    let index = studentsInState?.findIndex((s) => s.id === id)
-    console.log("index is " + index)
+    let index = studentsArrayInState?.findIndex((s) => s.id === id)
     if (index !== undefined) {
-      let newStudents = studentsInState?.slice()
-      console.log("studentInState: " + studentsInState)
-      console.log("newStudenta: " + newStudents)
+      let newStudents = studentsArrayInState?.slice()
       if (newStudents) {
-        console.log("setting students state: " + newState + ", id: " + id)
         newStudents[index].roll_state = newState
-        setStudentsInState(newStudents)
+        setStudentsArrayInState(newStudents)
       }
     }
   }
@@ -105,7 +101,13 @@ export const HomeBoardPage: React.FC = () => {
   return (
     <>
       <S.PageContainer>
-        <Toolbar onItemClick={onToolbarAction} selectedOption={selectedOption} setSelectedOption={setSelectedOption} searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+        <Toolbar
+          onItemClick={onToolbarAction}
+          selectedNameSortOption={selectedNameSortOption}
+          setSelectedNameSortOption={setSelectedNameSortOption}
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
+        />
 
         {loadState === "loading" && (
           <CenteredContainer>
@@ -113,25 +115,25 @@ export const HomeBoardPage: React.FC = () => {
           </CenteredContainer>
         )}
 
-        {loadState === "loaded" && studentsInState && (
+        {loadState === "loaded" && studentsArrayInState && (
           <>
-            {studentsInState
+            {studentsArrayInState
               .sort((a, b) => {
                 console.log("sorting")
                 let sortTargetA = a.first_name
                 let sortTargetB = b.first_name
-                if (selectedOption === "Last Name") {
+                if (selectedNameSortOption === "Last Name") {
                   sortTargetA = a.last_name
                   sortTargetB = b.last_name
                 }
 
-                if (isAscending && sortTargetA.charAt(0) < sortTargetB.charAt(0)) {
+                if (isAscending && sortTargetA < sortTargetB) {
                   return -1
-                } else if (isAscending && sortTargetA.charAt(0) > sortTargetB.charAt(0)) {
+                } else if (isAscending && sortTargetA > sortTargetB) {
                   return 1
-                } else if (!isAscending && sortTargetA.charAt(0) < sortTargetB.charAt(0)) {
+                } else if (!isAscending && sortTargetA < sortTargetB) {
                   return 1
-                } else if (!isAscending && sortTargetA.charAt(0) > sortTargetB.charAt(0)) {
+                } else if (!isAscending && sortTargetA > sortTargetB) {
                   return -1
                 } else {
                   return 0
@@ -165,14 +167,14 @@ type ToolbarAction = "roll" | "sortByFName" | "sortByLName" | "sortByAscDes"
 
 interface ToolbarProps {
   onItemClick: (action: ToolbarAction, value?: string) => void
-  selectedOption: string
-  setSelectedOption: React.Dispatch<React.SetStateAction<string>>
+  selectedNameSortOption: string
+  setSelectedNameSortOption: React.Dispatch<React.SetStateAction<string>>
   searchTerm?: string
   setSearchTerm?: React.Dispatch<React.SetStateAction<string>>
 }
 
 const Toolbar: React.FC<ToolbarProps> = (props) => {
-  const { onItemClick, selectedOption, setSelectedOption, searchTerm, setSearchTerm } = props
+  const { onItemClick, selectedNameSortOption: selectedOption, setSelectedNameSortOption: setSelectedOption, searchTerm, setSearchTerm } = props
   const [isAscending, setIsAscending] = useState(true)
 
   const handleChange = (event: { target: { value: any } }) => {
@@ -182,7 +184,7 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
   return (
     <S.ToolbarContainer>
       <S.SortContainer>
-        <DropDownContent onItemClick={onItemClick} selectedOption={selectedOption} setSelectedOption={setSelectedOption}></DropDownContent>
+        <DropDownContent onItemClick={onItemClick} selectedNameSortOption={selectedOption} setSelectedNameSortOption={setSelectedOption}></DropDownContent>
         <S.Button
           onClick={() => {
             onItemClick("sortByAscDes")
@@ -203,7 +205,7 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
 }
 
 const DropDownContent: React.FC<ToolbarProps> = (props) => {
-  const { onItemClick, selectedOption, setSelectedOption } = props
+  const { onItemClick, selectedNameSortOption: selectedNameSortOption, setSelectedNameSortOption: setSelectedNameSortOption } = props
   const [isDisplayed, setIsDisplayed] = useState(false)
 
   const toggleDisplay = () => {
@@ -211,7 +213,7 @@ const DropDownContent: React.FC<ToolbarProps> = (props) => {
   }
 
   const onOptionClicked = (value: string) => {
-    setSelectedOption(value)
+    setSelectedNameSortOption(value)
     setIsDisplayed(false)
     let action: ToolbarAction
     if (value === "First Name") {
@@ -226,12 +228,12 @@ const DropDownContent: React.FC<ToolbarProps> = (props) => {
 
   return (
     <div>
-      <S.Button onClick={() => toggleDisplay()}>{selectedOption}</S.Button>
+      <S.Button onClick={() => toggleDisplay()}>{selectedNameSortOption}</S.Button>
       {isDisplayed && (
         <S.DropDownListContainer>
           <S.DropdownList
             onBlur={() => {
-              alert("hshs")
+              alert("haha")
               setIsDisplayed(false)
             }}
             tabIndex={0}

@@ -14,7 +14,6 @@ export const RollStateSwitcher: React.FC<Props> = ({ initialState = "unmark", si
   const [rollState, setRollState] = useState(initialState)
 
   useEffect(() => {
-    console.log("!!!!!" + student.roll_state)
     setRollState(student.roll_state)
   }, [student])
 
